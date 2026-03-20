@@ -14,9 +14,6 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 
-# Standard Library
-import pathlib
-
 # Django
 from django.db.models.signals import (
     post_delete,
@@ -42,9 +39,8 @@ from wger.exercises.models import (
 @receiver(post_delete, sender=ExerciseImage)
 def delete_exercise_image_on_delete(sender, instance, **kwargs):
     """
-    Delete the image, along with its thumbnails, from the disk
+    Delete the image along with its thumbnails from the disk
     """
-
     thumbnailer = get_thumbnailer(instance.image)
     thumbnailer.delete_thumbnails()
     instance.image.delete(save=False)
@@ -66,6 +62,7 @@ def delete_exercise_image_on_update(sender, instance, **kwargs):
 
     new_file = instance.image
     if not old_file == new_file:
+        # Deletes the image as well as the thumbnails
         thumbnailer = get_thumbnailer(instance.image)
         thumbnailer.delete_thumbnails()
         instance.image.delete(save=False)
@@ -78,18 +75,16 @@ saved_file.connect(generate_aliases)
 @receiver(post_delete, sender=ExerciseVideo)
 def auto_delete_video_on_delete(sender, instance: ExerciseVideo, **kwargs):
     """
-    Deletes file from filesystem when corresponding ExerciseVideo object is deleted
+    Deletes file when corresponding ExerciseVideo object is deleted
     """
     if instance.video:
-        path = pathlib.Path(instance.video.path)
-        if path.exists():
-            path.unlink()
+        instance.video.delete(save=False)
 
 
 @receiver(pre_save, sender=ExerciseVideo)
 def delete_exercise_video_on_update(sender, instance: ExerciseVideo, **kwargs):
     """
-    Deletes file from filesystem when corresponding ExerciseVideo object was edited
+    Deletes file when corresponding ExerciseVideo object was edited
     """
     if not instance.pk:
         return False
@@ -100,16 +95,9 @@ def delete_exercise_video_on_update(sender, instance: ExerciseVideo, **kwargs):
         return False
 
     new_file = instance.video
-    if old_file != new_file:
-        path = pathlib.Path(old_file.path)
-        if path.is_file():
-            path.unlink()
-
-
-# Deletion log for exercise bases is handled in the model
-# @receiver(pre_delete, sender=ExerciseBase)
-# def add_deletion_log_base(sender, instance: ExerciseBase, **kwargs):
-#     pass
+    if not old_file == new_file and old_file:
+        old_file.delete(save=False)
+    return None
 
 
 @receiver(pre_delete, sender=Translation)
