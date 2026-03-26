@@ -27,7 +27,6 @@ from django.contrib.sitemaps.views import (
 from django.urls import path
 
 # Third Party
-from django_email_verification import urls as email_urls
 from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularRedocView,
@@ -357,8 +356,8 @@ urlpatterns += [
         'api/v2/schema/redoc',
         SpectacularRedocView.as_view(url_name='schema'),
         name='api-redoc',
-    ),
-    path('email/', include(email_urls)),
+    ),   
+    path('email/', include('allauth.account.urls')), 
 ]
 
 #
