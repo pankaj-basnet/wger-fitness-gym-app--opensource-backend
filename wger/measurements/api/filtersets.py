@@ -25,9 +25,7 @@ class MeasurementEntryFilterSet(filters.FilterSet):
         model = Measurement
         fields = {
             'id': ['exact', 'in'],
-            'category': [
-                'exact',
-                'in',
-            ],
+            'category': ['exact', 'in'],
+            'category__group': ['exact', 'in'],
             'date': ['exact', 'gt', 'gte', 'lt', 'lte'],
         }
