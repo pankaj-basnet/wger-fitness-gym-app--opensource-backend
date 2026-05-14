@@ -247,6 +247,11 @@ router.register(
     measurements_api_views.CategoryViewSet,
     basename='measurement-category',
 )
+router.register(
+    r'measurement-group',
+    measurements_api_views.MeasurementGroupViewSet,
+    basename='measurement-group',
+)
 
 # Trophies app
 router.register(r'trophy', trophies_api_views.TrophyViewSet, basename='trophy')

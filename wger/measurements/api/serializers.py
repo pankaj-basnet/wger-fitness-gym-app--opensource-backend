@@ -45,6 +45,8 @@ class UnitSerializer(serializers.ModelSerializer):
     Measurement unit serializer
     """
 
+    group_detail = MeasurementGroupSerializer(source='group', read_only=True)
+
     class Meta:
         model = Category
         fields = (
