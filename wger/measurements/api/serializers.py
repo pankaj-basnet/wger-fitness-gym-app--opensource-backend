@@ -24,6 +24,20 @@ from wger.measurements.models import (
     Category,
     Measurement,
 )
+from wger.measurements.models.dynamic import FORMULA_REGISTRY, DynamicMeasurementPoint
+from wger.measurements.models.group import MeasurementGroup
+
+
+class MeasurementGroupSerializer(serializers.ModelSerializer):
+    """
+    Serializer for MeasurementGroup — groups related categories together.
+    Example: "Blood Pressure" groups Systolic + Diastolic categories.
+    """
+
+    class Meta:
+        model = MeasurementGroup
+        fields = ('id', 'uuid', 'name', 'description')
+        read_only_fields = ('uuid',)
 
 
 class UnitSerializer(serializers.ModelSerializer):
@@ -33,7 +47,16 @@ class UnitSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ('id', 'name', 'unit')
+        fields = (
+            'id',
+            'name',
+            'unit',
+            'group',
+            'group_detail',
+            'formula',
+            'is_dynamic',
+        )
+        read_only_fields = ('is_dynamic',)
 
 
 class MeasurementSerializer(serializers.ModelSerializer):
@@ -59,3 +82,13 @@ class MeasurementSerializer(serializers.ModelSerializer):
             'value',
             'notes',
         )
+
+
+class DynamicMeasurementPointSerializer(serializers.Serializer):
+    """
+    Serializer for computed (dynamic) measurement data points.
+    """
+
+    date = serializers.DateField()
+    value = serializers.DecimalField(max_digits=10, decimal_places=2)
+    notes = serializers.CharField()
